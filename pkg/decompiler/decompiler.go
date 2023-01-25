@@ -115,11 +115,12 @@ func Decompile(imageName string) (*parser.Node, error) {
 
 func line2Node(line string, root *parser.Node) error {
 	result, err := parser.Parse(strings.NewReader(line))
-	if err != nil {
-		return err
-	}
-	for _, node := range result.AST.Children {
-		root.AddChild(node, -1, -1)
+	//some LABEL instructions are wrongly encoded by image producer (eg nginx) causing parser to fail
+	// so we just skip in case of error and do not report
+	if err == nil {
+		for _, node := range result.AST.Children {
+			root.AddChild(node, -1, -1)
+		}
 	}
 	return nil
 }
